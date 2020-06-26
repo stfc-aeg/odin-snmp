@@ -33,12 +33,15 @@ class SnmpAdapter(ApiAdapter):
         networkDevice = str(self.options.get('networkDevice', 'devswitch5920'))
 
         # Parse network device port configuration
-        
-        if 'ports' in self.options:
-            ports = {int(key):value for (key,value) in (port.strip().split(':') for port in self.options['ports'].split(','))}
-        else:
+        try:
+            if 'ports' in self.options:
+                ports = {int(key):value for (key,value) in (port.strip().split(':') for port in self.options['ports'].split(','))}
+            else:
+                ports = None
+        except ValueError as parse_error:
+            logging.warn('Unable to parse ports from config file: {}'.format(parse_error))
             ports = None
-        
+
         # Parse the packet count types
         oids = tuple(self.options.get('oids', 'ifInUcastPkts, ifOutUcastPkts').strip().split(','))
 
